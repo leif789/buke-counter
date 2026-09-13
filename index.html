@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>初三补课计数器</title>
+<style>
+:root{
+  --bg:#0d1117; --card:#161b22; --card2:#1c2333; --line:#30363d;
+  --text:#e6edf3; --muted:#8b949e; --accent:#4ec9b0;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{
+  background:linear-gradient(160deg,#0d1117 0%,#101820 55%,#0d1117 100%);
+  color:var(--text);font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  padding:22px 16px 40px;line-height:1.55;min-height:100vh;
+}
+.board{max-width:620px;margin:0 auto}
+header{text-align:center;padding:12px 0 18px}
+header h1{font-size:25px;font-weight:800}
+header .sub{color:var(--muted);font-size:14px;margin-top:5px}
+
+.total{
+  background:var(--card);border:1px solid var(--line);border-radius:16px;
+  padding:16px;text-align:center;margin-bottom:14px;
+}
+.total .lb{color:var(--muted);font-size:13px}
+.total .num{font-size:48px;font-weight:800;color:var(--accent);margin-top:2px}
+
+.pay{
+  background:rgba(212,167,44,.08);border:1px solid rgba(212,167,44,.3);border-radius:12px;
+  padding:12px 15px;font-size:14px;color:#d8cfa8;margin-bottom:16px;line-height:1.6;
+}
+.pay b{color:var(--gold)}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:400px){.grid{grid-template-columns:1fr}}
+
+.counter{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;
+  padding:18px 14px;display:flex;flex-direction:column;align-items:center;
+  position:relative;overflow:hidden;
+}
+.counter::before{content:"";position:absolute;top:0;left:0;right:0;height:5px;background:var(--cc,#4ec9b0)}
+.counter .subj{font-size:18px;font-weight:800;margin-bottom:3px}
+.counter .teacher{font-size:13px;color:var(--muted);margin-bottom:10px}
+.counter .num{font-size:58px;font-weight:800;line-height:1;margin:2px 0 10px;color:var(--cc,#e6edf3)}
+.counter .meta{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:12px;text-align:center}
+.counter .meta span{display:block}
+.counter .btns{display:flex;gap:16px;margin-top:2px}
+.btn{
+  width:56px;height:56px;border-radius:50%;border:none;font-size:30px;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;color:#fff;
+  transition:opacity .08s, transform .05s;-webkit-user-select:none;user-select:none;touch-action:manipulation;
+}
+.btn:active{transform:scale(.9)}
+.btn.minus{background:rgba(248,81,73,.18);border:2px solid rgba(248,81,73,.55);color:#f85149}
+.btn.plus{background:rgba(63,185,80,.18);border:2px solid rgba(63,185,80,.55);color:#3fb950}
+.btn:disabled{opacity:.25}
+
+.foot{display:flex;gap:10px;margin-top:18px}
+.ghost{flex:1;padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--card2);color:var(--muted);font-size:14px;cursor:pointer}
+.ghost.danger{border-color:rgba(248,81,73,.4);color:#f85149}
+.ghost:active{opacity:.7}
+.hint{text-align:center;color:var(--muted);font-size:12px;margin-top:16px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="board">
+  <header>
+    <h1>📚 初三补课计数器</h1>
+    <div class="sub">每周补课后点 ＋1 · 数据自动保存在本机</div>
+  </header>
+
+  <div class="total">
+    <div class="lb">累计补课总次数</div>
+    <div class="num" id="totalNum">0</div>
+  </div>
+
+  <div class="pay">
+    💰 <b>数学 + 英语</b>：合计 72 课时 · <b>42,000 元</b> · 已于 2026-09-12 付款
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <div class="foot">
+    <button class="ghost" id="btnReset">↺ 清零</button>
+  </div>
+  <div class="hint">次数存在手机本地（localStorage），换网址或清浏览器数据会丢失。</div>
+</div>
+
+<script>
+const SUBJECTS = [
+  {key:'math', name:'数学', teacher:'万达马老师', color:'#58a6ff', icon:'🔢', loc:'万达', time:'周六 8:00-10:00', init:1},
+  {key:'english', name:'英语', teacher:'万达英语', color:'#bc8cff', icon:'🔤', loc:'万达', time:'周六 10:00-12:00', init:1},
+  {key:'chemistry', name:'化学', teacher:'陈老师', color:'#3fb950', icon:'🧪', loc:'康博8栋1单元601室', time:'周六 15:40-17:40', init:2},
+  {key:'physics', name:'物理', teacher:'张老师', color:'#f0883e', icon:'⚛️', loc:'中粮彩云居3栋3单元805室', time:'周日 8:00-9:30', init:1},
+];
+const STORE = 'buke_counter_v2';
+
+function load(){
+  try{ return JSON.parse(localStorage.getItem(STORE)) || null; }
+  catch(e){ return null; }
+}
+function save(d){ localStorage.setItem(STORE, JSON.stringify(d)); }
+
+let data = load();
+if(!data){
+  data = {};
+  SUBJECTS.forEach(s => data[s.key] = s.init);
+  save(data);
+}else{
+  SUBJECTS.forEach(s => { if(data[s.key] == null) data[s.key] = s.init; });
+  save(data);
+}
+
+const grid = document.getElementById('grid');
+const els = {};
+
+SUBJECTS.forEach(s => {
+  const div = document.createElement('div');
+  div.className = 'counter';
+  div.style.setProperty('--cc', s.color);
+  div.innerHTML = `
+    <div class="subj">${s.icon} ${s.name}</div>
+    <div class="teacher">${s.teacher}</div>
+    <div class="num" id="num-${s.key}">${data[s.key]}</div>
+    <div class="meta"><span>📍 ${s.loc}</span><span>🕐 ${s.time}</span></div>
+    <div class="btns">
+      <button class="btn minus" id="minus-${s.key}" aria-label="${s.name}减1">−</button>
+      <button class="btn plus" id="plus-${s.key}" aria-label="${s.name}加1">＋</button>
+    </div>`;
+  grid.appendChild(div);
+  els[s.key] = { num: div.querySelector('.num'), minus: div.querySelector('.minus'), plus: div.querySelector('.plus') };
+});
+
+function refresh(){
+  let total = 0;
+  SUBJECTS.forEach(s => {
+    els[s.key].num.textContent = data[s.key];
+    els[s.key].minus.disabled = data[s.key] <= 0;
+    total += data[s.key];
+  });
+  document.getElementById('totalNum').textContent = total;
+}
+
+SUBJECTS.forEach(s => {
+  els[s.key].plus.addEventListener('click', () => { data[s.key]++; save(data); refresh(); });
+  els[s.key].minus.addEventListener('click', () => { if(data[s.key] > 0){ data[s.key]--; save(data); refresh(); } });
+});
+
+document.getElementById('btnReset').addEventListener('click', () => {
+  if(confirm('确定清零所有补课次数吗？')) {
+    SUBJECTS.forEach(s => data[s.key] = 0);
+    save(data); refresh();
+  }
+});
+
+refresh();
+</script>
+</body>
+</html>
