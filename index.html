@@ -8,6 +8,7 @@
 :root{
   --bg:#0d1117; --card:#161b22; --card2:#1c2333; --line:#30363d;
   --text:#e6edf3; --muted:#8b949e; --accent:#4ec9b0;
+  --gold:#d4a72c; --blue:#58a6ff; --green:#3fb950; --red:#f85149; --purple:#bc8cff; --orange:#f0883e;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{
@@ -32,6 +33,26 @@ header .sub{color:var(--muted);font-size:14px;margin-top:5px}
   padding:12px 15px;font-size:14px;color:#d8cfa8;margin-bottom:16px;line-height:1.6;
 }
 .pay b{color:var(--gold)}
+
+.sync{
+  background:rgba(78,201,176,.08);border:1px solid rgba(78,201,176,.35);border-radius:12px;
+  padding:12px 15px;font-size:13.5px;color:#b8e6dc;margin-bottom:16px;line-height:1.6;
+}
+.sync button{
+  display:block;width:100%;margin-top:9px;padding:11px;border-radius:10px;border:none;
+  background:rgba(78,201,176,.2);border:1px solid rgba(78,201,176,.5);color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+}
+.sync button:active{opacity:.7}
+.sync button:disabled{opacity:.4}
+
+.cal{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:13px 15px;margin-bottom:16px;line-height:1.75;
+}
+.cal .t{font-size:14px;font-weight:800;margin-bottom:7px}
+.cal .item{font-size:13px;color:#c9d1d9;padding:4px 0;border-top:1px dashed var(--line)}
+.cal .item:first-of-type{border-top:none;padding-top:0}
+.cal .item .d{color:var(--muted);font-size:12px;display:block;margin-top:1px}
 
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:400px){.grid{grid-template-columns:1fr}}
@@ -78,7 +99,21 @@ header .sub{color:var(--muted);font-size:14px;margin-top:5px}
   </div>
 
   <div class="pay">
-    💰 <b>数学 + 英语</b>：合计 72 课时 · <b>42,000 元</b> · 已于 2026-09-12 付款
+    💰 <b>数学 + 英语</b>：合计 72 课时 · <b>42,000 元</b> · 已于 2026-09-12 付款<br>
+    💰 <b>物理</b>：20 次课 · <b>14,000 元</b> · 已付
+  </div>
+
+  <div class="sync">
+    🎉 <b>国庆补课已录入</b>（2026-10-01 ~ 10-07）：数学+4 · 英语+4 · 化学+1 · 物理+2
+    <button id="btnSync">🔄 同步国庆课次到本机</button>
+  </div>
+
+  <div class="cal">
+    <div class="t">📅 国庆补课日期明细</div>
+    <div class="item">🔢 <b>数学</b> · 4 次<span class="d">10/1、10/2、10/4、10/5 · 上午 8:00–12:30 · 万达城中公交站</span></div>
+    <div class="item">🔤 <b>英语</b> · 4 次<span class="d">10/1、10/2、10/4、10/5 · 上午 8:00–12:30 · 万达城中公交站</span></div>
+    <div class="item">⚛️ <b>物理</b> · 2 次<span class="d">10/3（时间待定）、10/4 16:10–17:40 · 中粮彩云居3栋3单元805室</span></div>
+    <div class="item">🧪 <b>化学</b> · 1 次<span class="d">10/7 上午 10:00–12:00 · 康博8栋1单元601室</span></div>
   </div>
 
   <div class="grid" id="grid"></div>
@@ -86,17 +121,19 @@ header .sub{color:var(--muted);font-size:14px;margin-top:5px}
   <div class="foot">
     <button class="ghost" id="btnReset">↺ 清零</button>
   </div>
-  <div class="hint">次数存在手机本地（localStorage），换网址或清浏览器数据会丢失。</div>
+  <div class="hint">次数存在手机本地（localStorage），换网址或清浏览器数据会丢失。<br>若手机显示的数字仍是旧值，点上方「同步国庆课次」即可补齐。</div>
 </div>
 
 <script>
 const SUBJECTS = [
-  {key:'math', name:'数学', teacher:'万达马老师', color:'#58a6ff', icon:'🔢', loc:'万达', time:'周六 8:00-10:00', init:1},
-  {key:'english', name:'英语', teacher:'万达英语', color:'#bc8cff', icon:'🔤', loc:'万达', time:'周六 10:00-12:00', init:1},
-  {key:'chemistry', name:'化学', teacher:'陈老师', color:'#3fb950', icon:'🧪', loc:'康博8栋1单元601室', time:'周六 15:40-17:40', init:2},
-  {key:'physics', name:'物理', teacher:'张老师', color:'#f0883e', icon:'⚛️', loc:'中粮彩云居3栋3单元805室', time:'周日 8:00-9:30', init:1},
+  {key:'math', name:'数学', teacher:'万达马老师', color:'#58a6ff', icon:'🔢', loc:'万达', time:'周六 8:00-10:00', init:7},
+  {key:'english', name:'英语', teacher:'万达英语', color:'#bc8cff', icon:'🔤', loc:'万达', time:'周六 10:00-12:00', init:7},
+  {key:'chemistry', name:'化学', teacher:'陈老师', color:'#3fb950', icon:'🧪', loc:'康博8栋1单元601室', time:'周六 15:40-17:40', init:4},
+  {key:'physics', name:'物理', teacher:'张老师', color:'#f0883e', icon:'⚛️', loc:'中粮彩云居3栋3单元805室', time:'周日 8:00-9:30', init:4},
 ];
-const STORE = 'buke_counter_v2';
+// 国庆后目标累计（= 截至 9/27 累计 数学3英语3化学3物理2 + 国庆 +4/+4/+1/+2）
+const TARGET = { math:7, english:7, chemistry:4, physics:4 };
+const STORE = 'buke_counter_v3';
 
 function load(){
   try{ return JSON.parse(localStorage.getItem(STORE)) || null; }
@@ -147,6 +184,14 @@ function refresh(){
 SUBJECTS.forEach(s => {
   els[s.key].plus.addEventListener('click', () => { data[s.key]++; save(data); refresh(); });
   els[s.key].minus.addEventListener('click', () => { if(data[s.key] > 0){ data[s.key]--; save(data); refresh(); } });
+});
+
+// 同步国庆课次：把四科补足到国庆后目标（只增不减，不覆盖用户更高的记录）
+document.getElementById('btnSync').addEventListener('click', () => {
+  SUBJECTS.forEach(s => { if(TARGET[s.key] && data[s.key] < TARGET[s.key]) data[s.key] = TARGET[s.key]; });
+  save(data); refresh();
+  document.getElementById('btnSync').textContent = '✅ 已同步（数学7·英语7·化学4·物理4）';
+  document.getElementById('btnSync').disabled = true;
 });
 
 document.getElementById('btnReset').addEventListener('click', () => {
