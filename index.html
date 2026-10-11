@@ -104,8 +104,8 @@ header .sub{color:var(--muted);font-size:14px;margin-top:5px}
   </div>
 
   <div class="sync">
-    🎉 <b>国庆补课已录入</b>（2026-10-01 ~ 10-07）：数学+4 · 英语+4 · 化学+1 · 物理+2
-    <button id="btnSync">🔄 同步国庆课次到本机</button>
+    📋 <b>本周已更新</b>（10/10–10/11）：数学/英语周六缺课 · 化学调周日 10:00 · 物理周日 8:00
+    <button id="btnSync">🔄 同步本周课次到本机</button>
   </div>
 
   <div class="cal">
@@ -121,18 +121,18 @@ header .sub{color:var(--muted);font-size:14px;margin-top:5px}
   <div class="foot">
     <button class="ghost" id="btnReset">↺ 清零</button>
   </div>
-  <div class="hint">次数存在手机本地（localStorage），换网址或清浏览器数据会丢失。<br>若手机显示的数字仍是旧值，点上方「同步国庆课次」即可补齐。</div>
+  <div class="hint">次数存在手机本地（localStorage），换网址或清浏览器数据会丢失。<br>若手机显示的数字仍是旧值，点上方「同步本周课次」即可补齐。</div>
 </div>
 
 <script>
 const SUBJECTS = [
   {key:'math', name:'数学', teacher:'万达马老师', color:'#58a6ff', icon:'🔢', loc:'万达', time:'周六 8:00-10:00', init:7},
   {key:'english', name:'英语', teacher:'万达英语', color:'#bc8cff', icon:'🔤', loc:'万达', time:'周六 10:00-12:00', init:7},
-  {key:'chemistry', name:'化学', teacher:'陈老师', color:'#3fb950', icon:'🧪', loc:'康博8栋1单元601室', time:'周六 15:40-17:40', init:4},
-  {key:'physics', name:'物理', teacher:'张老师', color:'#f0883e', icon:'⚛️', loc:'中粮彩云居3栋3单元805室', time:'周日 8:00-9:30', init:4},
+  {key:'chemistry', name:'化学', teacher:'陈老师', color:'#3fb950', icon:'🧪', loc:'康博8栋1单元601室', time:'周六 15:40-17:40', init:5},
+  {key:'physics', name:'物理', teacher:'张老师', color:'#f0883e', icon:'⚛️', loc:'中粮彩云居3栋3单元805室', time:'周日 8:00-9:30', init:5},
 ];
 // 国庆后目标累计（= 截至 9/27 累计 数学3英语3化学3物理2 + 国庆 +4/+4/+1/+2）
-const TARGET = { math:7, english:7, chemistry:4, physics:4 };
+const TARGET = { math:7, english:7, chemistry:5, physics:5 };
 const STORE = 'buke_counter_v3';
 
 function load(){
@@ -190,7 +190,7 @@ SUBJECTS.forEach(s => {
 document.getElementById('btnSync').addEventListener('click', () => {
   SUBJECTS.forEach(s => { if(TARGET[s.key] && data[s.key] < TARGET[s.key]) data[s.key] = TARGET[s.key]; });
   save(data); refresh();
-  document.getElementById('btnSync').textContent = '✅ 已同步（数学7·英语7·化学4·物理4）';
+  document.getElementById('btnSync').textContent = '✅ 已同步（数学7·英语7·化学5·物理5）';
   document.getElementById('btnSync').disabled = true;
 });
 
