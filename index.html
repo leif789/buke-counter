@@ -104,7 +104,7 @@ header .sub{color:var(--muted);font-size:14px;margin-top:5px}
   </div>
 
   <div class="sync">
-    📋 <b>本周已更新</b>（10/10–10/11）：数学/英语周六缺课 · 化学调周日 10:00 · 物理周日 8:00
+    📋 <b>本周已更新</b>（10/17–10/18）：数学周六缺课 · 英语/化学周六 · 物理周日
     <button id="btnSync">🔄 同步本周课次到本机</button>
   </div>
 
@@ -127,12 +127,12 @@ header .sub{color:var(--muted);font-size:14px;margin-top:5px}
 <script>
 const SUBJECTS = [
   {key:'math', name:'数学', teacher:'万达马老师', color:'#58a6ff', icon:'🔢', loc:'万达', time:'周六 8:00-10:00', init:7},
-  {key:'english', name:'英语', teacher:'万达英语', color:'#bc8cff', icon:'🔤', loc:'万达', time:'周六 10:00-12:00', init:7},
-  {key:'chemistry', name:'化学', teacher:'陈老师', color:'#3fb950', icon:'🧪', loc:'康博8栋1单元601室', time:'周六 15:40-17:40', init:5},
-  {key:'physics', name:'物理', teacher:'张老师', color:'#f0883e', icon:'⚛️', loc:'中粮彩云居3栋3单元805室', time:'周日 8:00-9:30', init:5},
+  {key:'english', name:'英语', teacher:'万达英语', color:'#bc8cff', icon:'🔤', loc:'万达', time:'周六 10:00-12:00', init:8},
+  {key:'chemistry', name:'化学', teacher:'陈老师', color:'#3fb950', icon:'🧪', loc:'康博8栋1单元601室', time:'周六 15:40-17:40', init:6},
+  {key:'physics', name:'物理', teacher:'张老师', color:'#f0883e', icon:'⚛️', loc:'中粮彩云居3栋3单元805室', time:'周日 8:00-9:30', init:6},
 ];
-// 国庆后目标累计（= 截至 9/27 累计 数学3英语3化学3物理2 + 国庆 +4/+4/+1/+2）
-const TARGET = { math:7, english:7, chemistry:5, physics:5 };
+// 截至 2026-10-18 累计（本周数学缺课）
+const TARGET = { math:7, english:8, chemistry:6, physics:6 };
 const STORE = 'buke_counter_v3';
 
 function load(){
@@ -190,7 +190,7 @@ SUBJECTS.forEach(s => {
 document.getElementById('btnSync').addEventListener('click', () => {
   SUBJECTS.forEach(s => { if(TARGET[s.key] && data[s.key] < TARGET[s.key]) data[s.key] = TARGET[s.key]; });
   save(data); refresh();
-  document.getElementById('btnSync').textContent = '✅ 已同步（数学7·英语7·化学5·物理5）';
+  document.getElementById('btnSync').textContent = '✅ 已同步（数学7·英语8·化学6·物理6）';
   document.getElementById('btnSync').disabled = true;
 });
 
